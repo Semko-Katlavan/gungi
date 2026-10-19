@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Гунги — онлайн</title>
+<style>
+:root{--bg:#f4efe6;--fg:#1c1a17;--card:#fffdf8;--ac:#a3262a;--c1:#e8d8b4;--c2:#c9b184}
+@media(prefers-color-scheme:dark){:root{--bg:#16140f;--fg:#efe8d8;--card:#221f18;--c1:#5b4d33;--c2:#46391f}}
+*{box-sizing:border-box}body{margin:0;font:16px system-ui,sans-serif;background:var(--bg);color:var(--fg)}
+header{display:flex;gap:6px;padding:10px;position:sticky;top:0;background:var(--bg);z-index:5}
+header b{margin-right:auto;color:var(--ac);align-self:center}
+button{font:inherit;padding:8px 12px;border:1px solid var(--ac);background:var(--card);color:var(--fg);border-radius:8px;cursor:pointer}
+button.on,button.p{background:var(--ac);color:#fff}
+main{max-width:640px;margin:auto;padding:0 10px 30px}.card{background:var(--card);border-radius:12px;padding:12px;margin:10px 0}
+input{font:inherit;padding:8px;border-radius:8px;border:1px solid var(--c2);background:var(--bg);color:var(--fg);width:100%}
+.row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--c1)}
+#bd{display:grid;grid-template-columns:repeat(9,1fr);width:100%;aspect-ratio:1;border:2px solid var(--c2)}
+.c{position:relative;display:flex;align-items:center;justify-content:center;background:var(--c1);cursor:pointer}
+.c:nth-child(even){background:var(--c2)}.c.s{outline:3px solid var(--ac);outline-offset:-3px}
+.c.t::after{content:"";position:absolute;width:30%;height:30%;border-radius:50%;background:#2a9d4f;opacity:.75}
+.f{width:84%;height:84%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:min(4.6vw,26px);border:2px solid #000;z-index:1}
+.f.w{background:#fff;color:#000}.f.b{background:#222;color:#fff;border-color:#888}
+.h{position:absolute;right:1px;bottom:0;font-size:11px;font-weight:700;color:var(--ac);z-index:2}
+.res{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;min-height:44px}.res .f{position:static;width:40px;height:40px;cursor:pointer;font-size:18px}.res .f.s{outline:3px solid var(--ac)}
+.hide{display:none}li{margin:4px 0}h3{margin:12px 0 4px}small{opacity:.7}
+</style></head><body>
+<header><b>軍棋 Гунги</b><button id="t0" class="on">Лобби</button><button id="t1">Игра</button><button id="t2">Правила</button></header>
+<main>
+<section id="v0">
+ <div class="card"><input id="nm" placeholder="Твоё имя" maxlength="20">
+  <p><button class="p" id="wt">Встать в ожидание партии</button> <button id="loc">Играть вдвоём на одном экране</button></p>
+  <small id="st"></small></div>
+ <div class="card"><b>Сейчас ждут партию:</b><div id="ls"><small>никого</small></div></div>
+</section>
+<section id="v1" class="hide">
+ <div class="card"><div id="inf"><small>Партия не начата — зайди в лобби.</small></div>
+  <div class="res" id="rb"></div><div id="bd"></div><div class="res" id="rw"></div>
+  <small>Нажми на свою фигуру → зелёные точки показывают ходы. Или выбери фигуру из резерва и поставь в свою зону (3 ближних ряда).</small></div>
+</section>
+<section id="v2" class="hide"><div class="card">
+<p><small>В манге правила Гунги показаны не полностью, поэтому это адаптация: фигуры и ходы упрощены, но логика та же — ярусы, стопки, дроп из резерва.</small></p>
+<h3>Цель</h3>Захватить вражеского <b>Маршала</b>.
+<h3>Поле и ход</h3>Поле 9×9. Белые ходят первыми. За ход можно: <b>(1)</b> сдвинуть верхнюю фигуру любой стопки или <b>(2)</b> «выставить» фигуру из резерва в свою зону (3 ближних ряда) на пустую клетку или на свою стопку.
+<h3>Ярусы</h3>Фигуры можно ставить друг на друга — до 3 ярусов. Двигается только верхняя фигура. <b>Чем выше ярус, тем сильнее фигура</b> (дальше ходит, получает новые направления). Цифра в углу клетки — высота стопки.
+<h3>Бой и стопки</h3><ul><li>Встать на вражескую клетку — снимаешь верхнюю фигуру врага, твоя занимает её место.</li><li>Встать на свою клетку (если там меньше 3) — получается стопка.</li><li>Скользящие фигуры не могут проходить через занятые клетки. Рыцарь прыгает.</li></ul>
+<h3>Фигуры (n — номер яруса 1–3)</h3><ul>
+<li><b>М Маршал</b> — во все 8 сторон на n клеток.</li>
+<li><b>Г Генерал</b> — по прямой на n+1 клеток.</li>
+<li><b>С Самурай</b> — по диагонали на n+1 клеток.</li>
+<li><b>Р Рыцарь</b> — прыжок «буквой Г»; с яруса 2 ещё 1 шаг по прямой.</li>
+<li><b>Ф Крепость</b> — по прямой на n клеток + 1 шаг по диагонали.</li>
+<li><b>П Пешка</b> — вперёд на n клеток; с яруса 2 ещё 1 шаг вбок.</li>
+<li><b>Ш Шпион</b> — по диагонали на n клеток; на ярусе 3 ещё 1 шаг по прямой.</li></ul>
+<h3>Старт</h3>У каждого на поле 19 фигур и в резерве 4: Генерал, Самурай, Рыцарь, Пешка.
+</div></section>
+</main>
+<script>
+const $=s=>document.querySelector(s),L={M:'М',G:'Г',S:'С',K:'Р',F:'Ф',P:'П',Y:'Ш'},NM={M:'Маршал',G:'Генерал',S:'Самурай',K:'Рыцарь',F:'Крепость',P:'Пешка',Y:'Шпион'};
+const id=localStorage.gid||(localStorage.gid=Math.random().toString(36).slice(2,10));
+$('#nm').value=localStorage.gname||'';
+const api=o=>fetch('/api/g',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o)}).then(r=>r.json());
+const tab=n=>{[0,1,2].forEach(i=>{$('#v'+i).classList.toggle('hide',i!=n);$('#t'+i).classList.toggle('on',i==n)})};
+[0,1,2].forEach(i=>$('#t'+i).onclick=()=>tab(i));
+let G=null,sel=null,waiting=false;
+const name=()=>($('#nm').value.trim()||'Игрок'+id.slice(0,3));
+function init(){const b=Array.from({length:81},()=>[]);'FKSYMYSKF'.split('').forEach((t,c)=>{b[72+c]=['w'+t];b[c]=['b'+t]});for(let c=0;c<9;c++){b[63+c]=['wP'];b[9+c]=['bP']}
+ return{b,res:{w:[...'GSKP'],b:[...'GSKP']},turn:'w',v:0,win:null}}
+function moves(st,i){const s=st.b[i],p=s[s.length-1],col=p[0],ty=p[1],t=s.length,f=col=='w'?-1:1,out=[],r0=i/9|0,c0=i%9;
+ const ok=(r,c)=>{if(r<0||c<0||r>8||c>8)return 0;const d=st.b[r*9+c],e=d[d.length-1];return!e?1:e[0]!=col?2:d.length<3?3:0};
+ const sl=(dr,dc,n)=>{for(let k=1;k<=n;k++){const r=r0+dr*k,c=c0+dc*k,x=ok(r,c);if(!x)break;out.push(r*9+c);if(x>1)break}};
+ const O=[[1,0],[-1,0],[0,1],[0,-1]],D=[[1,1],[1,-1],[-1,1],[-1,-1]],ea=(A,n)=>A.forEach(d=>sl(d[0],d[1],n));
+ if(ty=='M')ea([...O,...D],t);if(ty=='G')ea(O,t+1);if(ty=='S')ea(D,t+1);if(ty=='F'){ea(O,t);ea(D,1)}
+ if(ty=='P'){sl(f,0,t);if(t>1){sl(0,1,1);sl(0,-1,1)}}if(ty=='Y'){ea(D,t);if(t>2)ea(O,1)}
+ if(ty=='K'){[[1,2],[2,1]].forEach(([a,b])=>[1,-1].forEach(x=>[1,-1].forEach(y=>{const r=r0+a*x,c=c0+b*y;if(ok(r,c))out.push(r*9+c)})));if(t>1)ea(O,1)}
+ return out}
+function drops(st){const col=st.turn,o=[];for(let i=0;i<81;i++){const r=i/9|0;if(col=='w'?r<6:r>2)continue;const d=st.b[i],e=d[d.length-1];if(!e||(e[0]==col&&d.length<3))o.push(i)}return o}
+function apply(st,m){const s=JSON.parse(JSON.stringify(st)),col=s.turn;
+ if(m.drop){s.res[col].splice(s.res[col].indexOf(m.drop),1);s.b[m.to].push(col+m.drop)}
+ else{const p=s.b[m.from].pop(),d=s.b[m.to],e=d[d.length-1];if(e&&e[0]!=col){d.pop();if(e[1]=='M')s.win=col}d.push(p)}
+ s.turn=col=='w'?'b':'w';s.v++;return s}
+const targets=()=>!G||sel==null||G.st.win?[]:typeof sel=='number'?moves(G.st,sel):drops(G.st);
+function render(){if(!G)return;const st=G.st,tg=targets(),fl=G.me=='b',bd=$('#bd');bd.innerHTML='';
+ for(let k=0;k<81;k++){const i=fl?80-k:k,d=st.b[i],e=d[d.length-1],c=document.createElement('div');c.className='c'+(sel===i?' s':'')+(tg.includes(i)?' t':'');
+  if(e)c.innerHTML=`<div class="f ${e[0]}" title="${NM[e[1]]}">${L[e[1]]}</div>`+(d.length>1?`<span class="h">${d.length}</span>`:'');
+  c.onclick=()=>click(i);bd.appendChild(c)}
+ ['w','b'].forEach(col=>{const el=$('#r'+col);el.innerHTML='';st.res[col].forEach(t=>{const f=document.createElement('div');f.className='f '+col+(sel&&sel.drop==t&&st.turn==col?' s':'');f.textContent=L[t];f.title=NM[t];f.onclick=()=>{if(canPlay()&&st.turn==col){sel=sel&&sel.drop==t?null:{drop:t};render()}};el.appendChild(f)})});
+ const nn=G.net?st.n:{w:'Белые',b:'Чёрные'},w=st.win;
+ $('#inf').innerHTML=w?`<b>Победили ${w=='w'?'белые':'чёрные'} (${nn[w]})!</b>`:`Ход: <b>${st.turn=='w'?'белых':'чёрных'}</b> (${nn[st.turn]})`+(G.net?` · ты — ${G.me=='w'?'белые':'чёрные'}`:'');
+ // резерв противника сверху, свой снизу
+ if(fl){$('#rb').before($('#bd'));}}
+const canPlay=()=>G&&!G.st.win&&(!G.net||G.st.turn==G.me);
+function click(i){if(!canPlay())return;const st=G.st,col=st.turn,d=st.b[i],e=d[d.length-1],tg=targets();
+ if(tg.includes(i)){go(sel&&sel.drop?{drop:sel.drop,to:i}:{from:sel,to:i});return}
+ sel=e&&e[0]==col?i:null;render()}
+function go(m){G.st=apply(G.st,m);sel=null;render();if(G.net)api({a:'move',g:G.g,id,state:G.st})}
+function start(st,net,g){G={st,net,g,me:net?(st.p.w==id?'w':'b'):null};sel=null;
+ const bd=$('#bd');$('#rb').after(bd);$('#bd').after($('#rw'));render();tab(1)}
+$('#loc').onclick=()=>start(init(),false);
+$('#nm').onchange=()=>localStorage.gname=$('#nm').value;
+$('#wt').onclick=()=>{waiting=!waiting;localStorage.gname=name();if(!waiting)api({a:'stop',id});$('#wt').textContent=waiting?'Отменить ожидание':'Встать в ожидание партии';$('#st').textContent=waiting?'Ты в списке — ждём, пока кто-то примет вызов…':'';lobby()};
+async function lobby(){try{if(waiting)await api({a:'wait',id,name:name()});
+ const {l}=await api({a:'list'}),ls=$('#ls');ls.innerHTML='';
+ (l||[]).filter(x=>x.id!=id).forEach(x=>{const r=document.createElement('div');r.className='row';r.innerHTML=`<span>${x.name.replace(/</g,'&lt;')}</span>`;const b=document.createElement('button');b.className='p';b.textContent='Играть';
+  b.onclick=async()=>{const s=init();const o=await api({a:'invite',id,to:x.id,name:name(),state:s});if(o.g){waiting=false;const q=await api({a:'get',g:o.g});start(q.s,true,o.g)}else{$('#st').textContent='Игрок уже ушёл, выбери другого'}};r.appendChild(b);ls.appendChild(r)});
+ if(!ls.children.length)ls.innerHTML='<small>никого (позови друга открыть сайт)</small>';
+ if(waiting){const {g}=await api({a:'poll',id});if(g){waiting=false;$('#wt').textContent='Встать в ожидание партии';$('#st').textContent='';const q=await api({a:'get',g});start(q.s,true,g)}}}catch(e){$('#st').textContent='Нет связи с сервером (проверь Redis)'}}
+setInterval(lobby,2500);lobby();
+setInterval(async()=>{if(G&&G.net&&!G.st.win){const {s}=await api({a:'get',g:G.g});if(s&&s.v>G.st.v){G.st=s;sel=null;render()}}},1500);
+</script></body></html>
